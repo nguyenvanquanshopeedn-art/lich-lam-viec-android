@@ -799,24 +799,23 @@ fun DailyScheduleScreen(
                     )
                 }
             },
-            confirmButton = {
+                        confirmButton = {
                 Button(
                     onClick = {
+                        val sHour = (startHourText.trim().toIntOrNull() ?: 8).coerceIn(0, 23)
+                        val sMin = (startMinText.trim().toIntOrNull() ?: 0).coerceIn(0, 59)
+                        val eHour = (endHourText.trim().toIntOrNull() ?: sHour).coerceIn(0, 23)
+                        val eMin = (endMinText.trim().toIntOrNull() ?: sMin).coerceIn(0, 59)
+
                         val computedLabel = if (newCustomLabel.isNotBlank()) {
                             newCustomLabel.trim()
                         } else {
-                            String.format(
-                                "%02d:%02d - %02d:%02d",
-                                newStartHour,
-                                newStartMin,
-                                newEndHour,
-                                newEndMin
-                            )
+                            String.format("%02d:%02d - %02d:%02d", sHour, sMin, eHour, eMin)
                         }
                         plan.slots.add(
                             TimeSlotItem(
-                                hour = newStartHour,
-                                minute = newStartMin,
+                                hour = sHour,
+                                minute = sMin,
                                 label = computedLabel,
                                 task = newSlotTask.trim()
                             )
