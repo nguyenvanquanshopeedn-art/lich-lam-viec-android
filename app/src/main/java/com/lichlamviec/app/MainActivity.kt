@@ -1,12 +1,17 @@
 package com.lichlamviec.app
 
 import android.Manifest
+import android.app.Activity
 import android.app.DatePickerDialog
 import android.content.Context
+import android.content.Intent
+import android.media.RingtoneManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
@@ -28,6 +33,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.gson.Gson
@@ -180,6 +186,46 @@ fun MainAppScreen() {
     var currentMonth by remember { mutableStateOf(YearMonth.now()) }
     var refreshTrigger by remember { mutableIntStateOf(0) }
 
+    var ringtoneSettings by remember { mutableStateOf(RingtonePrefs.load(context)) }
+    var showRingtoneDialog by remember { mutableStateOf(false) }
+
+    val systemRingtonePicker = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val uri: Uri? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                result.data?.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI, Uri::class.java)
+            } else {
+                @Suppress("DEPRECATION")
+                result.data?.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI)
+            }
+            if (uri != null) {
+                val title = RingtoneManager.getRingtone(context, uri)?.getTitle(context) ?: "Nhạc chuông hệ thống"
+                ringtoneSettings = ringtoneSettings.copy(ringtoneUri = uri.toString(), ringtoneTitle = title)
+                RingtonePrefs.save(context, ringtoneSettings)
+                AlarmSoundPlayer.playPreview(context, ringtoneSettings.ringtoneUri, ringtoneSettings.volumePercent)
+            }
+        }
+    }
+
+    val customAudioPicker = rememberLauncherForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        if (uri != null) {
+            try {
+                context.contentResolver.takePersistableUriPermission(
+                    uri,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION
+                )
+            } catch (_: Exception) {
+            }
+            val fileName = uri.lastPathSegment?.substringAfterLast('/') ?: "File nhạc chuông tùy chọn"
+            ringtoneSettings = ringtoneSettings.copy(ringtoneUri = uri.toString(), ringtoneTitle = fileName)
+            RingtonePrefs.save(context, ringtoneSettings)
+            AlarmSoundPlayer.playPreview(context, ringtoneSettings.ringtoneUri, ringtoneSettings.volumePercent)
+        }
+    }
+
     var liveClock by remember {
         mutableStateOf(LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")))
     }
@@ -195,6 +241,145 @@ fun MainAppScreen() {
 
     val dayPlan = remember(dateKey, refreshTrigger) { repo.loadDay(dateKey) }
     val monthPlan = remember(monthKey, refreshTrigger) { repo.loadMonth(monthKey) }
+
+    if (showRingtoneDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                AlarmSoundPlayer.stop()
+                showRingtoneDialog = false
+            },
+            title = {
+                Text("Settings nhạc chuông", fontWeight = FontWeight.ExtraBold, fontSize = 16.sp)
+            },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Text("Nhạc chuông hiện tại:", fontSize = 12.sp, color = AppThemeColors.TextSecondary)
+                    Text(
+                        ringtoneSettings.ringtoneTitle,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = AppThemeColors.BluePrimary
+                    )
+
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Button(
+                            onClick = {
+                                val intent = Intent(RingtoneManager.ACTION_RINGTONE_PICKER).apply {
+                                    putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_ALARM)
+                                    putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true)
+                                    putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, false)
+                                    if (ringtoneSettings.ringtoneUri.isNotBlank()) {
+                                        putExtra(
+                                            RingtoneManager.EXTRA_RINGTONE_EXISTING_URI,
+                                            Uri.parse(ringtoneSettings.ringtoneUri)
+                                        )
+                                    }
+                                }
+                                systemRingtonePicker.launch(intent)
+                            },
+                            shape = RoundedCornerShape(8.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = AppThemeColors.BluePrimary),
+                            modifier = Modifier.weight(1f),
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp)
+                        ) {
+                            Text("Chọn chuông máy", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                        }
+
+                        OutlinedButton(
+                            onClick = { customAudioPicker.launch("audio/*") },
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier.weight(1f),
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp)
+                        ) {
+                            Text("Chọn file âm thanh", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                        }
+                    }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text("Âm lượng chuông:", fontSize = 12.sp, color = AppThemeColors.TextSecondary)
+                        Text("${ringtoneSettings.volumePercent}%", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    }
+                    Slider(
+                        value = ringtoneSettings.volumePercent / 100f,
+                        onValueChange = { frac ->
+                            val newVol = (frac * 100).toInt().coerceIn(0, 100)
+                            ringtoneSettings = ringtoneSettings.copy(volumePercent = newVol)
+                            RingtonePrefs.save(context, ringtoneSettings)
+                        }
+                    )
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text("Rung khi báo thức", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                        Switch(
+                            checked = ringtoneSettings.vibrateEnabled,
+                            onCheckedChange = { checked ->
+                                ringtoneSettings = ringtoneSettings.copy(vibrateEnabled = checked)
+                                RingtonePrefs.save(context, ringtoneSettings)
+                            }
+                        )
+                    }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text("Lặp lại chuông khi báo", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                        Switch(
+                            checked = ringtoneSettings.loopAlarm,
+                            onCheckedChange = { checked ->
+                                ringtoneSettings = ringtoneSettings.copy(loopAlarm = checked)
+                                RingtonePrefs.save(context, ringtoneSettings)
+                            }
+                        )
+                    }
+
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        OutlinedButton(
+                            onClick = {
+                                AlarmSoundPlayer.playPreview(
+                                    context,
+                                    ringtoneSettings.ringtoneUri,
+                                    ringtoneSettings.volumePercent
+                                )
+                            },
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text("Nghe thử", fontSize = 12.sp)
+                        }
+                        OutlinedButton(
+                            onClick = { AlarmSoundPlayer.stop() },
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text("Dừng tiếng", fontSize = 12.sp)
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        AlarmSoundPlayer.stop()
+                        RingtonePrefs.save(context, ringtoneSettings)
+                        showRingtoneDialog = false
+                        Toast.makeText(context, "Đã lưu Settings nhạc chuông", Toast.LENGTH_SHORT).show()
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = AppThemeColors.BluePrimary)
+                ) {
+                    Text("Lưu")
+                }
+            }
+        )
+    }
 
     Scaffold(
         topBar = {
@@ -330,21 +515,33 @@ fun MainAppScreen() {
                 ) {
                     Button(
                         onClick = {
-                            AlarmHelper.scheduleAlarm(
+                            AlarmSoundPlayer.playPreview(
                                 context,
-                                9999,
-                                LocalTime.now().hour,
-                                (LocalTime.now().minute + 1) % 60,
-                                "Kiểm tra chuông báo thức",
-                                "Test Chuông"
+                                ringtoneSettings.ringtoneUri,
+                                ringtoneSettings.volumePercent
                             )
-                            Toast.makeText(context, "Đã kích hoạt thử chuông báo thức", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Đang phát thử: ${ringtoneSettings.ringtoneTitle}", Toast.LENGTH_SHORT).show()
                         },
                         shape = RoundedCornerShape(8.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = AppThemeColors.AmberButton),
-                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
+                        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 8.dp)
                     ) {
                         Text("Test Chuông", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                    }
+
+                    OutlinedButton(
+                        onClick = { showRingtoneDialog = true },
+                        shape = RoundedCornerShape(8.dp),
+                        border = BorderStroke(1.dp, AppThemeColors.HeaderBorder),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            containerColor = AppThemeColors.HeaderSurface,
+                            contentColor = Color.White
+                        ),
+                        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 8.dp)
+                    ) {
+                        Icon(Icons.Default.MusicNote, contentDescription = null, modifier = Modifier.size(15.dp))
+                        Spacer(Modifier.width(4.dp))
+                        Text("Settings nhạc chuông", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
                     }
 
                     OutlinedButton(
@@ -359,7 +556,7 @@ fun MainAppScreen() {
                             containerColor = AppThemeColors.HeaderSurface,
                             contentColor = Color.White
                         ),
-                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
+                        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 8.dp)
                     ) {
                         Icon(Icons.Default.Save, contentDescription = null, modifier = Modifier.size(15.dp))
                         Spacer(Modifier.width(4.dp))
@@ -731,7 +928,6 @@ fun DailyScheduleScreen(
                 }
             }
         }
-
         item {
             Card(
                 shape = RoundedCornerShape(12.dp),
@@ -1010,6 +1206,7 @@ fun DailyScheduleScreen(
                                                 }
                                         )
                                     }
+
                                     TextField(
                                         value = task,
                                         onValueChange = {
@@ -1177,6 +1374,7 @@ fun DailyScheduleScreen(
                             singleLine = true
                         )
                     }
+
                     Text(
                         "* Bấm \"Chuyển sang mục tiêu ngày mai\" để tự động điền các việc này vào mục tiêu ngày kế tiếp.",
                         fontSize = 11.sp,
@@ -1329,7 +1527,6 @@ fun MonthlyPlanScreen(
                                 Text("$daysWithData/$daysInMonth", fontSize = 18.sp, fontWeight = FontWeight.ExtraBold, color = AppThemeColors.TextPrimary)
                                 Text("ngày có dữ liệu", fontSize = 10.sp, color = AppThemeColors.TextSecondary)
                             }
-
                             Column(
                                 modifier = Modifier
                                     .weight(1f)
@@ -1391,7 +1588,7 @@ fun MonthlyPlanScreen(
                                 Text(
                                     h,
                                     modifier = Modifier.weight(1f),
-                                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                                    textAlign = TextAlign.Center,
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = if (h == "CN") Color(0xFFDC2626) else AppThemeColors.TextSecondary
@@ -1455,6 +1652,7 @@ fun MonthlyPlanScreen(
                 }
             }
         }
+
         item {
             Card(
                 shape = RoundedCornerShape(12.dp),
