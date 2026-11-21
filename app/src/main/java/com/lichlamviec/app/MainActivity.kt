@@ -704,11 +704,11 @@ fun DailyScheduleScreen(
     val context = LocalContext.current
     var mutationCount by remember { mutableIntStateOf(0) }
 
-    var showAddSlotDialog by remember { mutableStateOf(false) }
-    var newStartHour by remember { mutableIntStateOf(8) }
-    var newStartMin by remember { mutableIntStateOf(0) }
-    var newEndHour by remember { mutableIntStateOf(9) }
-    var newEndMin by remember { mutableIntStateOf(0) }
+        var showAddSlotDialog by remember { mutableStateOf(false) }
+    var startHourText by remember { mutableStateOf("8") }
+    var startMinText by remember { mutableStateOf("00") }
+    var endHourText by remember { mutableStateOf("9") }
+    var endMinText by remember { mutableStateOf("00") }
     var newCustomLabel by remember { mutableStateOf("") }
     var newSlotTask by remember { mutableStateOf("") }
 
