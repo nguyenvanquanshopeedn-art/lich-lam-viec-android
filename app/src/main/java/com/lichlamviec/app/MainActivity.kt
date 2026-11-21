@@ -32,8 +32,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.gson.Gson
@@ -282,7 +283,7 @@ fun MainAppScreen() {
                             modifier = Modifier.weight(1f),
                             contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp)
                         ) {
-                            Text("Chọn chuông máy", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                            Text("Chọn chuông máy", fontSize = 12.sp, fontWeight = FontWeight.Bold, maxLines = 1)
                         }
 
                         OutlinedButton(
@@ -291,7 +292,7 @@ fun MainAppScreen() {
                             modifier = Modifier.weight(1f),
                             contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp)
                         ) {
-                            Text("Chọn file âm thanh", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                            Text("Chọn file âm thanh", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
                         }
                     }
 
@@ -353,14 +354,14 @@ fun MainAppScreen() {
                             shape = RoundedCornerShape(8.dp),
                             modifier = Modifier.weight(1f)
                         ) {
-                            Text("Nghe thử", fontSize = 12.sp)
+                            Text("Nghe thử", fontSize = 12.sp, maxLines = 1)
                         }
                         OutlinedButton(
                             onClick = { AlarmSoundPlayer.stop() },
                             shape = RoundedCornerShape(8.dp),
                             modifier = Modifier.weight(1f)
                         ) {
-                            Text("Dừng tiếng", fontSize = 12.sp)
+                            Text("Dừng tiếng", fontSize = 12.sp, maxLines = 1)
                         }
                     }
                 }
@@ -387,11 +388,11 @@ fun MainAppScreen() {
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(AppThemeColors.HeaderDark)
-                    .padding(horizontal = 14.dp, vertical = 12.dp)
+                    .padding(horizontal = 12.dp, vertical = 10.dp)
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.Top,
+                    verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
@@ -399,28 +400,32 @@ fun MainAppScreen() {
                             "LỊCH LÀM VIỆC HÀNG NGÀY",
                             color = Color.White,
                             fontWeight = FontWeight.ExtraBold,
-                            fontSize = 18.sp
+                            fontSize = 16.sp,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
-                        Spacer(Modifier.height(2.dp))
                         Text(
-                            "Kế hoạch phân bố thời gian & theo dõi mục tiêu trong ngày",
+                            "Kế hoạch thời gian & mục tiêu trong ngày",
                             color = Color(0xFFCBD5E1),
-                            fontSize = 12.sp
+                            fontSize = 11.sp,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
                     Spacer(Modifier.width(8.dp))
                     Column(
                         modifier = Modifier
-                            .background(AppThemeColors.HeaderSurface, RoundedCornerShape(10.dp))
-                            .border(1.dp, AppThemeColors.HeaderBorder, RoundedCornerShape(10.dp))
-                            .padding(horizontal = 10.dp, vertical = 6.dp),
+                            .background(AppThemeColors.HeaderSurface, RoundedCornerShape(8.dp))
+                            .border(1.dp, AppThemeColors.HeaderBorder, RoundedCornerShape(8.dp))
+                            .padding(horizontal = 9.dp, vertical = 5.dp),
                         horizontalAlignment = Alignment.End
                     ) {
                         Text(
                             liveClock,
                             color = Color(0xFFFBBF24),
                             fontWeight = FontWeight.ExtraBold,
-                            fontSize = 15.sp
+                            fontSize = 14.sp,
+                            maxLines = 1
                         )
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Box(
@@ -434,29 +439,30 @@ fun MainAppScreen() {
                                 "Báo thức tự động",
                                 color = Color(0xFF6EE7B7),
                                 fontSize = 10.sp,
-                                fontWeight = FontWeight.Medium
+                                fontWeight = FontWeight.Medium,
+                                maxLines = 1
                             )
                         }
                     }
                 }
-
-                Spacer(Modifier.height(10.dp))
+                
+                Spacer(Modifier.height(8.dp))
 
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(AppThemeColors.HeaderSurface, RoundedCornerShape(12.dp))
-                        .border(1.dp, AppThemeColors.HeaderBorder, RoundedCornerShape(12.dp))
-                        .padding(4.dp),
+                        .background(AppThemeColors.HeaderSurface, RoundedCornerShape(10.dp))
+                        .border(1.dp, AppThemeColors.HeaderBorder, RoundedCornerShape(10.dp))
+                        .padding(3.dp),
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     Box(
                         modifier = Modifier
                             .weight(1f)
-                            .clip(RoundedCornerShape(9.dp))
+                            .clip(RoundedCornerShape(8.dp))
                             .background(if (selectedTab == 0) AppThemeColors.BluePrimary else Color.Transparent)
                             .clickable { selectedTab = 0 }
-                            .padding(vertical = 10.dp),
+                            .padding(vertical = 8.dp, horizontal = 6.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -464,28 +470,30 @@ fun MainAppScreen() {
                                 Icons.Default.CalendarToday,
                                 contentDescription = null,
                                 tint = Color.White,
-                                modifier = Modifier.size(16.dp)
+                                modifier = Modifier.size(14.dp)
                             )
-                            Spacer(Modifier.width(6.dp))
+                            Spacer(Modifier.width(5.dp))
                             Text(
                                 "Lịch Ngày",
                                 color = Color.White,
                                 fontWeight = FontWeight.Bold,
-                                fontSize = 13.sp
+                                fontSize = 12.sp,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
                             )
                         }
                     }
 
                     Box(
                         modifier = Modifier
-                            .weight(1f)
-                            .clip(RoundedCornerShape(9.dp))
+                            .weight(1.25f)
+                            .clip(RoundedCornerShape(8.dp))
                             .background(if (selectedTab == 1) AppThemeColors.BluePrimary else Color.Transparent)
                             .clickable {
                                 currentMonth = YearMonth.from(currentDate)
                                 selectedTab = 1
                             }
-                            .padding(vertical = 10.dp),
+                            .padding(vertical = 8.dp, horizontal = 6.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -493,25 +501,27 @@ fun MainAppScreen() {
                                 Icons.Default.BarChart,
                                 contentDescription = null,
                                 tint = Color.White,
-                                modifier = Modifier.size(16.dp)
+                                modifier = Modifier.size(14.dp)
                             )
-                            Spacer(Modifier.width(6.dp))
+                            Spacer(Modifier.width(5.dp))
                             Text(
                                 "Kế hoạch & Tổng kết Tháng",
                                 color = Color.White,
                                 fontWeight = FontWeight.Bold,
-                                fontSize = 12.sp
+                                fontSize = 11.sp,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
                             )
                         }
                     }
                 }
 
-                Spacer(Modifier.height(10.dp))
+                Spacer(Modifier.height(8.dp))
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     Button(
                         onClick = {
@@ -524,9 +534,16 @@ fun MainAppScreen() {
                         },
                         shape = RoundedCornerShape(8.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = AppThemeColors.AmberButton),
-                        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 8.dp)
+                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 6.dp),
+                        modifier = Modifier.height(34.dp)
                     ) {
-                        Text("Test Chuông", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                        Text(
+                            "Test Chuông",
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 11.sp,
+                            maxLines = 1
+                        )
                     }
 
                     OutlinedButton(
@@ -537,11 +554,20 @@ fun MainAppScreen() {
                             containerColor = AppThemeColors.HeaderSurface,
                             contentColor = Color.White
                         ),
-                        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 8.dp)
+                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 6.dp),
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(34.dp)
                     ) {
-                        Icon(Icons.Default.MusicNote, contentDescription = null, modifier = Modifier.size(15.dp))
+                        Icon(Icons.Default.MusicNote, contentDescription = null, modifier = Modifier.size(14.dp))
                         Spacer(Modifier.width(4.dp))
-                        Text("Settings nhạc chuông", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                        Text(
+                            "Settings nhạc chuông",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
                     }
 
                     OutlinedButton(
@@ -556,11 +582,17 @@ fun MainAppScreen() {
                             containerColor = AppThemeColors.HeaderSurface,
                             contentColor = Color.White
                         ),
-                        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 8.dp)
+                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 6.dp),
+                        modifier = Modifier.height(34.dp)
                     ) {
-                        Icon(Icons.Default.Save, contentDescription = null, modifier = Modifier.size(15.dp))
+                        Icon(Icons.Default.Save, contentDescription = null, modifier = Modifier.size(14.dp))
                         Spacer(Modifier.width(4.dp))
-                        Text("Sao lưu", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                        Text(
+                            "Sao lưu",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            maxLines = 1
+                        )
                     }
                 }
             }
@@ -630,7 +662,7 @@ fun SectionHeaderDark(
         modifier = Modifier
             .fillMaxWidth()
             .background(AppThemeColors.HeaderSurface, RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
-            .padding(horizontal = 14.dp, vertical = 12.dp),
+            .padding(horizontal = 12.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
@@ -639,14 +671,18 @@ fun SectionHeaderDark(
                 title,
                 color = Color.White,
                 fontWeight = FontWeight.ExtraBold,
-                fontSize = 14.sp
+                fontSize = 13.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
             if (subtitle != null) {
                 Spacer(Modifier.height(2.dp))
                 Text(
                     subtitle,
                     color = Color(0xFFCBD5E1),
-                    fontSize = 11.sp
+                    fontSize = 11.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         }
@@ -791,8 +827,8 @@ fun DailyScheduleScreen(
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(12.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+            .padding(10.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         item {
             Card(
@@ -816,10 +852,10 @@ fun DailyScheduleScreen(
                             onClick = { onDateChange(date.minusDays(1)) },
                             shape = RoundedCornerShape(8.dp),
                             border = BorderStroke(1.dp, AppThemeColors.CardBorder),
-                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 6.dp),
-                            modifier = Modifier.weight(1f)
+                            contentPadding = PaddingValues(horizontal = 6.dp, vertical = 6.dp),
+                            modifier = Modifier.weight(1f).height(34.dp)
                         ) {
-                            Text("Hôm trước", fontSize = 11.sp, color = AppThemeColors.TextPrimary, fontWeight = FontWeight.SemiBold)
+                            Text("Hôm trước", fontSize = 11.sp, color = AppThemeColors.TextPrimary, fontWeight = FontWeight.SemiBold, maxLines = 1)
                         }
 
                         OutlinedButton(
@@ -835,31 +871,31 @@ fun DailyScheduleScreen(
                             shape = RoundedCornerShape(8.dp),
                             border = BorderStroke(1.dp, AppThemeColors.CardBorder),
                             contentPadding = PaddingValues(horizontal = 8.dp, vertical = 6.dp),
-                            modifier = Modifier.weight(1.3f)
+                            modifier = Modifier.weight(1.35f).height(34.dp)
                         ) {
-                            Text(formattedDate, fontSize = 12.sp, color = AppThemeColors.TextPrimary, fontWeight = FontWeight.Bold)
-                            Spacer(Modifier.width(4.dp))
-                            Icon(Icons.Default.ExpandMore, contentDescription = null, tint = AppThemeColors.TextSecondary, modifier = Modifier.size(16.dp))
+                            Text(formattedDate, fontSize = 11.sp, color = AppThemeColors.TextPrimary, fontWeight = FontWeight.Bold, maxLines = 1)
+                            Spacer(Modifier.width(2.dp))
+                            Icon(Icons.Default.ExpandMore, contentDescription = null, tint = AppThemeColors.TextSecondary, modifier = Modifier.size(15.dp))
                         }
 
                         Button(
                             onClick = { onDateChange(LocalDate.now()) },
                             shape = RoundedCornerShape(8.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = AppThemeColors.BluePrimary),
-                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 6.dp),
-                            modifier = Modifier.weight(0.9f)
+                            contentPadding = PaddingValues(horizontal = 6.dp, vertical = 6.dp),
+                            modifier = Modifier.weight(0.95f).height(34.dp)
                         ) {
-                            Text("Hôm nay", fontSize = 11.sp, color = Color.White, fontWeight = FontWeight.Bold)
+                            Text("Hôm nay", fontSize = 11.sp, color = Color.White, fontWeight = FontWeight.Bold, maxLines = 1)
                         }
 
                         OutlinedButton(
                             onClick = { onDateChange(date.plusDays(1)) },
                             shape = RoundedCornerShape(8.dp),
                             border = BorderStroke(1.dp, AppThemeColors.CardBorder),
-                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 6.dp),
-                            modifier = Modifier.weight(1f)
+                            contentPadding = PaddingValues(horizontal = 6.dp, vertical = 6.dp),
+                            modifier = Modifier.weight(1f).height(34.dp)
                         ) {
-                            Text("Ngày mai", fontSize = 11.sp, color = AppThemeColors.TextPrimary, fontWeight = FontWeight.SemiBold)
+                            Text("Ngày mai", fontSize = 11.sp, color = AppThemeColors.TextPrimary, fontWeight = FontWeight.SemiBold, maxLines = 1)
                         }
                     }
 
@@ -868,66 +904,80 @@ fun DailyScheduleScreen(
                             .fillMaxWidth()
                             .background(AppThemeColors.PageBg, RoundedCornerShape(10.dp))
                             .border(1.dp, AppThemeColors.CardBorder, RoundedCornerShape(10.dp))
-                            .padding(horizontal = 12.dp, vertical = 10.dp),
-                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                            .padding(horizontal = 12.dp, vertical = 8.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text("Thứ:", color = AppThemeColors.TextSecondary, fontSize = 13.sp)
-                            Text(dayOfWeek, color = AppThemeColors.BluePrimary, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                            Text("Thứ:", color = AppThemeColors.TextSecondary, fontSize = 12.sp)
+                            Text(dayOfWeek, color = AppThemeColors.BluePrimary, fontWeight = FontWeight.Bold, fontSize = 12.sp)
                         }
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text("Ngày:", color = AppThemeColors.TextSecondary, fontSize = 13.sp)
-                            Text(formattedDate, color = AppThemeColors.TextPrimary, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                            Text("Ngày:", color = AppThemeColors.TextSecondary, fontSize = 12.sp)
+                            Text(formattedDate, color = AppThemeColors.TextPrimary, fontWeight = FontWeight.Bold, fontSize = 12.sp)
                         }
                     }
 
-                    Row(
+                    Column(
                         modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
+                        verticalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                "Tiến độ hoàn thành trong ngày:",
+                                fontSize = 12.sp,
+                                color = AppThemeColors.TextSecondary,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.weight(1f)
+                            )
+                            Spacer(Modifier.width(8.dp))
+                            Box(
+                                modifier = Modifier
+                                    .background(AppThemeColors.AmberSoftBg, RoundedCornerShape(8.dp))
+                                    .border(1.dp, AppThemeColors.AmberSoftBorder, RoundedCornerShape(8.dp))
+                                    .padding(horizontal = 8.dp, vertical = 4.dp)
                             ) {
-                                Text("Tiến độ hoàn thành trong ngày:", fontSize = 12.sp, color = AppThemeColors.TextSecondary)
                                 Text(
-                                    "$doneGoalsCount/$totalGoalCount việc ($goalPercent%)",
-                                    fontSize = 12.sp,
+                                    "Chuông bật: $activeAlarmsCount khung giờ",
+                                    fontSize = 11.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = AppThemeColors.TextPrimary
+                                    color = AppThemeColors.AmberPrimary,
+                                    maxLines = 1
                                 )
                             }
-                            Spacer(Modifier.height(6.dp))
+                        }
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            Text(
+                                "$doneGoalsCount/$totalGoalCount việc ($goalPercent%)",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = AppThemeColors.TextPrimary,
+                                maxLines = 1
+                            )
                             LinearProgressIndicator(
                                 progress = if (totalGoalCount > 0) doneGoalsCount.toFloat() / totalGoalCount else 0f,
                                 modifier = Modifier
-                                    .fillMaxWidth()
+                                    .weight(1f)
                                     .height(6.dp)
                                     .clip(RoundedCornerShape(4.dp)),
                                 color = AppThemeColors.BluePrimary,
                                 trackColor = AppThemeColors.CardBorder
                             )
                         }
-                        Spacer(Modifier.width(10.dp))
-                        Box(
-                            modifier = Modifier
-                                .background(AppThemeColors.AmberSoftBg, RoundedCornerShape(8.dp))
-                                .border(1.dp, AppThemeColors.AmberSoftBorder, RoundedCornerShape(8.dp))
-                                .padding(horizontal = 8.dp, vertical = 6.dp)
-                        ) {
-                            Text(
-                                "Chuông bật: $activeAlarmsCount khung giờ",
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = AppThemeColors.AmberPrimary
-                            )
-                        }
                     }
                 }
             }
         }
+
         item {
             Card(
                 shape = RoundedCornerShape(12.dp),
@@ -947,11 +997,12 @@ fun DailyScheduleScreen(
                                 },
                                 shape = RoundedCornerShape(8.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = AppThemeColors.BluePrimary),
-                                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp)
+                                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp),
+                                modifier = Modifier.height(32.dp)
                             ) {
-                                Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
+                                Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(15.dp))
                                 Spacer(Modifier.width(4.dp))
-                                Text("Thêm mục tiêu", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                Text("Thêm mục tiêu", fontSize = 11.sp, fontWeight = FontWeight.Bold, maxLines = 1)
                             }
                         }
                     )
@@ -964,9 +1015,9 @@ fun DailyScheduleScreen(
                             .padding(horizontal = 12.dp, vertical = 8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("#", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = AppThemeColors.TextSecondary, modifier = Modifier.width(28.dp))
-                        Text("NỘI DUNG MỤC TIÊU QUAN TRỌNG", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = AppThemeColors.TextSecondary, modifier = Modifier.weight(1f))
-                        Text("XONG", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = AppThemeColors.TextSecondary)
+                        Text("#", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = AppThemeColors.TextSecondary, modifier = Modifier.width(26.dp))
+                        Text("NỘI DUNG MỤC TIÊU QUAN TRỌNG", fontWeight = FontWeight.Bold, fontSize = 11.sp, color = AppThemeColors.TextSecondary, modifier = Modifier.weight(1f), maxLines = 1)
+                        Text("XONG", fontWeight = FontWeight.Bold, fontSize = 11.sp, color = AppThemeColors.TextSecondary, maxLines = 1)
                     }
 
                     plan.goals.forEachIndexed { index, goal ->
@@ -977,7 +1028,7 @@ fun DailyScheduleScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .border(BorderStroke(0.5.dp, AppThemeColors.CardBorder))
-                                .padding(horizontal = 12.dp, vertical = 6.dp),
+                                .padding(horizontal = 12.dp, vertical = 4.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
@@ -985,7 +1036,7 @@ fun DailyScheduleScreen(
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 13.sp,
                                 color = AppThemeColors.TextSecondary,
-                                modifier = Modifier.width(28.dp)
+                                modifier = Modifier.width(26.dp)
                             )
                             TextField(
                                 value = text,
@@ -995,7 +1046,7 @@ fun DailyScheduleScreen(
                                     onSave()
                                 },
                                 placeholder = {
-                                    Text("Nhập mục tiêu số ${index + 1}...", fontSize = 13.sp, color = AppThemeColors.TextMuted)
+                                    Text("Nhập mục tiêu số ${index + 1}...", fontSize = 13.sp, color = AppThemeColors.TextMuted, maxLines = 1)
                                 },
                                 modifier = Modifier.weight(1f),
                                 singleLine = true,
@@ -1053,11 +1104,12 @@ fun DailyScheduleScreen(
                                 onClick = { showAddSlotDialog = true },
                                 shape = RoundedCornerShape(8.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = AppThemeColors.BluePrimary),
-                                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp)
+                                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp),
+                                modifier = Modifier.height(32.dp)
                             ) {
-                                Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
+                                Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(15.dp))
                                 Spacer(Modifier.width(4.dp))
-                                Text("Thêm thời gian", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                Text("Thêm thời gian", fontSize = 11.sp, fontWeight = FontWeight.Bold, maxLines = 1)
                             }
                         }
                     )
@@ -1066,10 +1118,10 @@ fun DailyScheduleScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .background(AppThemeColors.HeaderSurface)
-                            .padding(horizontal = 14.dp, vertical = 8.dp),
+                            .padding(horizontal = 12.dp, vertical = 7.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("Báo trước:", color = Color(0xFFCBD5E1), fontSize = 12.sp)
+                        Text("Báo trước:", color = Color(0xFFCBD5E1), fontSize = 12.sp, maxLines = 1)
                         Spacer(Modifier.width(8.dp))
                         Box {
                             val currentLeadText = leadOptions.firstOrNull { it.first == plan.leadMinutes }?.second ?: "Đúng giờ (0p)"
@@ -1081,11 +1133,12 @@ fun DailyScheduleScreen(
                                     containerColor = AppThemeColors.HeaderDark,
                                     contentColor = Color.White
                                 ),
-                                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp)
+                                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
+                                modifier = Modifier.height(30.dp)
                             ) {
-                                Text(currentLeadText, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                                Text(currentLeadText, fontSize = 11.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
                                 Spacer(Modifier.width(4.dp))
-                                Icon(Icons.Default.ExpandMore, contentDescription = null, modifier = Modifier.size(16.dp))
+                                Icon(Icons.Default.ExpandMore, contentDescription = null, modifier = Modifier.size(15.dp))
                             }
                             DropdownMenu(
                                 expanded = leadDropdownExpanded,
@@ -1114,22 +1167,23 @@ fun DailyScheduleScreen(
                             .padding(horizontal = 10.dp, vertical = 8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("KHUNG GIỜ", fontWeight = FontWeight.Bold, fontSize = 11.sp, color = AppThemeColors.TextSecondary, modifier = Modifier.width(105.dp))
-                        Text("NHIỆM VỤ / CÔNG VIỆC", fontWeight = FontWeight.Bold, fontSize = 11.sp, color = AppThemeColors.TextSecondary, modifier = Modifier.weight(1.2f))
-                        Text("GHI CHÚ", fontWeight = FontWeight.Bold, fontSize = 11.sp, color = AppThemeColors.TextSecondary, modifier = Modifier.weight(0.9f))
+                        Text("KHUNG GIỜ", fontWeight = FontWeight.Bold, fontSize = 11.sp, color = AppThemeColors.TextSecondary, modifier = Modifier.width(105.dp), maxLines = 1)
+                        Text("NHIỆM VỤ / CÔNG VIỆC", fontWeight = FontWeight.Bold, fontSize = 11.sp, color = AppThemeColors.TextSecondary, modifier = Modifier.weight(1.2f), maxLines = 1)
+                        Text("GHI CHÚ", fontWeight = FontWeight.Bold, fontSize = 11.sp, color = AppThemeColors.TextSecondary, modifier = Modifier.weight(0.9f), maxLines = 1)
                     }
 
                     if (plan.slots.isEmpty()) {
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(20.dp),
+                                .padding(18.dp),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
                                 "Chưa có khung giờ nào. Bấm \"+ Thêm thời gian\" để tạo nhiệm vụ theo giờ.",
                                 color = AppThemeColors.TextSecondary,
-                                fontSize = 13.sp
+                                fontSize = 12.sp,
+                                textAlign = TextAlign.Center
                             )
                         }
                     } else {
@@ -1150,7 +1204,7 @@ fun DailyScheduleScreen(
                                     .fillMaxWidth()
                                     .background(rowBg)
                                     .border(BorderStroke(0.5.dp, AppThemeColors.CardBorder))
-                                    .padding(horizontal = 10.dp, vertical = 6.dp)
+                                    .padding(horizontal = 10.dp, vertical = 5.dp)
                             ) {
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
@@ -1163,8 +1217,9 @@ fun DailyScheduleScreen(
                                         Text(
                                             slot.label,
                                             fontWeight = FontWeight.Bold,
-                                            fontSize = 12.sp,
-                                            color = AppThemeColors.TextPrimary
+                                            fontSize = 11.sp,
+                                            color = AppThemeColors.TextPrimary,
+                                            maxLines = 1
                                         )
                                         Spacer(Modifier.width(4.dp))
                                         Box(
@@ -1214,7 +1269,7 @@ fun DailyScheduleScreen(
                                             slot.task = it
                                             onSave()
                                         },
-                                        placeholder = { Text("Nội dung công việc...", fontSize = 12.sp, color = AppThemeColors.TextMuted) },
+                                        placeholder = { Text("Nội dung công việc...", fontSize = 12.sp, color = AppThemeColors.TextMuted, maxLines = 1) },
                                         modifier = Modifier.weight(1.2f),
                                         singleLine = true,
                                         colors = TextFieldDefaults.colors(
@@ -1236,7 +1291,7 @@ fun DailyScheduleScreen(
                                             slot.note = it
                                             onSave()
                                         },
-                                        placeholder = { Text("Ghi chú...", fontSize = 12.sp, color = AppThemeColors.TextMuted) },
+                                        placeholder = { Text("Ghi chú...", fontSize = 12.sp, color = AppThemeColors.TextMuted, maxLines = 1) },
                                         modifier = Modifier.weight(0.9f),
                                         singleLine = true,
                                         colors = TextFieldDefaults.colors(
@@ -1286,13 +1341,13 @@ fun DailyScheduleScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(14.dp),
+                        .padding(12.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     Text(
                         "TỔNG KẾT & ĐÁNH GIÁ CUỐI NGÀY",
                         fontWeight = FontWeight.ExtraBold,
-                        fontSize = 14.sp,
+                        fontSize = 13.sp,
                         color = AppThemeColors.TextPrimary
                     )
 
@@ -1314,7 +1369,7 @@ fun DailyScheduleScreen(
                         },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(100.dp)
+                            .height(95.dp)
                     )
 
                     Row(
@@ -1325,7 +1380,7 @@ fun DailyScheduleScreen(
                         Text(
                             "VIỆC CẦN LÀM NGÀY MAI",
                             fontWeight = FontWeight.ExtraBold,
-                            fontSize = 14.sp,
+                            fontSize = 13.sp,
                             color = AppThemeColors.TextPrimary
                         )
                         TextButton(
@@ -1333,9 +1388,11 @@ fun DailyScheduleScreen(
                                 plan.tomorrowTasks.add("")
                                 mutationCount++
                                 onSave()
-                            }
+                            },
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp),
+                            modifier = Modifier.height(30.dp)
                         ) {
-                            Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
+                            Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(15.dp))
                             Spacer(Modifier.width(2.dp))
                             Text("Thêm việc", fontSize = 12.sp, fontWeight = FontWeight.Bold)
                         }
@@ -1345,9 +1402,9 @@ fun DailyScheduleScreen(
                         onClick = onPushTomorrow,
                         shape = RoundedCornerShape(8.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = AppThemeColors.GreenPrimary),
-                        contentPadding = PaddingValues(horizontal = 14.dp, vertical = 8.dp)
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
                     ) {
-                        Text("Chuyển sang mục tiêu ngày mai", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                        Text("Chuyển sang mục tiêu ngày mai", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp, maxLines = 1)
                     }
 
                     plan.tomorrowTasks.forEachIndexed { idx, item ->
@@ -1368,7 +1425,7 @@ fun DailyScheduleScreen(
                                 )
                             },
                             placeholder = {
-                                Text("Nhập việc quan trọng ${idx + 1} cho ngày mai...", fontSize = 13.sp, color = AppThemeColors.TextMuted)
+                                Text("Nhập việc quan trọng ${idx + 1} cho ngày mai...", fontSize = 13.sp, color = AppThemeColors.TextMuted, maxLines = 1)
                             },
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true
@@ -1436,8 +1493,8 @@ fun MonthlyPlanScreen(
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(12.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+            .padding(10.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         item {
             Card(
@@ -1451,14 +1508,16 @@ fun MonthlyPlanScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .background(AppThemeColors.HeaderSurface, RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
-                            .padding(14.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                            .padding(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         Text(
                             "THỐNG KÊ HIỆU SUẤT & LỊCH TỔNG QUAN THÁNG",
                             color = Color.White,
                             fontWeight = FontWeight.ExtraBold,
-                            fontSize = 14.sp
+                            fontSize = 13.sp,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                         Box(
                             modifier = Modifier
@@ -1469,7 +1528,8 @@ fun MonthlyPlanScreen(
                                 "Tháng ${yearMonth.monthValue} / ${yearMonth.year}",
                                 color = Color.White,
                                 fontWeight = FontWeight.Bold,
-                                fontSize = 12.sp
+                                fontSize = 12.sp,
+                                maxLines = 1
                             )
                         }
                     }
@@ -1478,67 +1538,71 @@ fun MonthlyPlanScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(12.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
                             OutlinedButton(
                                 onClick = { onMonthChange(yearMonth.minusMonths(1)) },
                                 shape = RoundedCornerShape(8.dp),
                                 border = BorderStroke(1.dp, AppThemeColors.CardBorder),
-                                modifier = Modifier.weight(1f)
+                                contentPadding = PaddingValues(horizontal = 6.dp, vertical = 6.dp),
+                                modifier = Modifier.weight(1f).height(34.dp)
                             ) {
-                                Text("Tháng trước", fontSize = 12.sp, color = AppThemeColors.TextPrimary, fontWeight = FontWeight.SemiBold)
+                                Text("Tháng trước", fontSize = 11.sp, color = AppThemeColors.TextPrimary, fontWeight = FontWeight.SemiBold, maxLines = 1)
                             }
                             OutlinedButton(
                                 onClick = { onMonthChange(yearMonth.plusMonths(1)) },
                                 shape = RoundedCornerShape(8.dp),
                                 border = BorderStroke(1.dp, AppThemeColors.CardBorder),
-                                modifier = Modifier.weight(1f)
+                                contentPadding = PaddingValues(horizontal = 6.dp, vertical = 6.dp),
+                                modifier = Modifier.weight(1f).height(34.dp)
                             ) {
-                                Text("Tháng sau", fontSize = 12.sp, color = AppThemeColors.TextPrimary, fontWeight = FontWeight.SemiBold)
+                                Text("Tháng sau", fontSize = 11.sp, color = AppThemeColors.TextPrimary, fontWeight = FontWeight.SemiBold, maxLines = 1)
                             }
                             Button(
                                 onClick = { onMonthChange(YearMonth.now()) },
                                 shape = RoundedCornerShape(8.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = AppThemeColors.BluePrimary),
-                                modifier = Modifier.weight(1f)
+                                contentPadding = PaddingValues(horizontal = 6.dp, vertical = 6.dp),
+                                modifier = Modifier.weight(1f).height(34.dp)
                             ) {
-                                Text("Tháng này", fontSize = 12.sp, color = Color.White, fontWeight = FontWeight.Bold)
+                                Text("Tháng này", fontSize = 11.sp, color = Color.White, fontWeight = FontWeight.Bold, maxLines = 1)
                             }
                         }
 
                         Row(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
                             Column(
                                 modifier = Modifier
                                     .weight(1f)
                                     .background(AppThemeColors.BlueSoftBg, RoundedCornerShape(10.dp))
                                     .border(1.dp, AppThemeColors.BlueSoftBorder, RoundedCornerShape(10.dp))
-                                    .padding(10.dp),
+                                    .padding(8.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-                                Text("NGÀY ĐÃ LẬP LỊCH", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = AppThemeColors.BluePrimary)
-                                Spacer(Modifier.height(4.dp))
-                                Text("$daysWithData/$daysInMonth", fontSize = 18.sp, fontWeight = FontWeight.ExtraBold, color = AppThemeColors.TextPrimary)
-                                Text("ngày có dữ liệu", fontSize = 10.sp, color = AppThemeColors.TextSecondary)
+                                Text("NGÀY ĐÃ LẬP", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = AppThemeColors.BluePrimary, maxLines = 1)
+                                Spacer(Modifier.height(3.dp))
+                                Text("$daysWithData/$daysInMonth", fontSize = 17.sp, fontWeight = FontWeight.ExtraBold, color = AppThemeColors.TextPrimary, maxLines = 1)
+                                Text("ngày có lịch", fontSize = 10.sp, color = AppThemeColors.TextSecondary, maxLines = 1)
                             }
+
                             Column(
                                 modifier = Modifier
                                     .weight(1f)
                                     .background(AppThemeColors.GreenSoftBg, RoundedCornerShape(10.dp))
                                     .border(1.dp, AppThemeColors.GreenSoftBorder, RoundedCornerShape(10.dp))
-                                    .padding(10.dp),
+                                    .padding(8.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-                                Text("MỤC TIÊU NGÀY (%)", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = AppThemeColors.GreenPrimary)
-                                Spacer(Modifier.height(4.dp))
-                                Text("$goalRate%", fontSize = 18.sp, fontWeight = FontWeight.ExtraBold, color = AppThemeColors.TextPrimary)
-                                Text("$totalGoalsDone/$totalGoalsAll mục tiêu xong", fontSize = 10.sp, color = AppThemeColors.TextSecondary)
+                                Text("MỤC TIÊU (%)", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = AppThemeColors.GreenPrimary, maxLines = 1)
+                                Spacer(Modifier.height(3.dp))
+                                Text("$goalRate%", fontSize = 17.sp, fontWeight = FontWeight.ExtraBold, color = AppThemeColors.TextPrimary, maxLines = 1)
+                                Text("$totalGoalsDone/$totalGoalsAll xong", fontSize = 10.sp, color = AppThemeColors.TextSecondary, maxLines = 1)
                             }
 
                             Column(
@@ -1546,13 +1610,13 @@ fun MonthlyPlanScreen(
                                     .weight(1f)
                                     .background(AppThemeColors.AmberSoftBg, RoundedCornerShape(10.dp))
                                     .border(1.dp, AppThemeColors.AmberSoftBorder, RoundedCornerShape(10.dp))
-                                    .padding(10.dp),
+                                    .padding(8.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-                                Text("KHUNG GIỜ XONG", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = AppThemeColors.AmberPrimary)
-                                Spacer(Modifier.height(4.dp))
-                                Text("$totalSlotsDone", fontSize = 18.sp, fontWeight = FontWeight.ExtraBold, color = AppThemeColors.TextPrimary)
-                                Text("khung giờ đã tick", fontSize = 10.sp, color = AppThemeColors.TextSecondary)
+                                Text("KHUNG GIỜ", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = AppThemeColors.AmberPrimary, maxLines = 1)
+                                Spacer(Modifier.height(3.dp))
+                                Text("$totalSlotsDone", fontSize = 17.sp, fontWeight = FontWeight.ExtraBold, color = AppThemeColors.TextPrimary, maxLines = 1)
+                                Text("đã hoàn thành", fontSize = 10.sp, color = AppThemeColors.TextSecondary, maxLines = 1)
                             }
                         }
 
@@ -1638,7 +1702,8 @@ fun MonthlyPlanScreen(
                                             Text(
                                                 if (doneCount > 0) "$doneCount việc" else "—",
                                                 fontSize = 9.sp,
-                                                color = subColor
+                                                color = subColor,
+                                                maxLines = 1
                                             )
                                         }
                                     }
@@ -1673,9 +1738,10 @@ fun MonthlyPlanScreen(
                                 },
                                 shape = RoundedCornerShape(8.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = AppThemeColors.BluePrimary),
-                                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp)
+                                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp),
+                                modifier = Modifier.height(32.dp)
                             ) {
-                                Text("+ Thêm mục tiêu", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                Text("+ Thêm mục tiêu", fontSize = 11.sp, fontWeight = FontWeight.Bold, maxLines = 1)
                             }
                         }
                     )
@@ -1712,7 +1778,7 @@ fun MonthlyPlanScreen(
                                         value = txt,
                                         onValueChange = { txt = it; g.text = it; onSave() },
                                         shape = RoundedCornerShape(8.dp),
-                                        placeholder = { Text("Nhập mục tiêu trọng tâm tháng...", fontSize = 13.sp, color = AppThemeColors.TextMuted) },
+                                        placeholder = { Text("Nhập mục tiêu trọng tâm tháng...", fontSize = 13.sp, color = AppThemeColors.TextMuted, maxLines = 1) },
                                         modifier = Modifier.weight(1f),
                                         singleLine = true
                                     )
@@ -1735,7 +1801,8 @@ fun MonthlyPlanScreen(
                                             prio,
                                             fontSize = 11.sp,
                                             fontWeight = FontWeight.Bold,
-                                            color = if (prio == "Cao") Color(0xFFB91C1C) else AppThemeColors.AmberPrimary
+                                            color = if (prio == "Cao") Color(0xFFB91C1C) else AppThemeColors.AmberPrimary,
+                                            maxLines = 1
                                         )
                                     }
                                     Checkbox(
@@ -1747,13 +1814,13 @@ fun MonthlyPlanScreen(
                                     modifier = Modifier.fillMaxWidth(),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Text("Tiến độ:", fontSize = 12.sp, color = AppThemeColors.TextSecondary)
+                                    Text("Tiến độ:", fontSize = 12.sp, color = AppThemeColors.TextSecondary, maxLines = 1)
                                     Slider(
                                         value = prog,
                                         onValueChange = { prog = it; g.progress = it; onSave() },
                                         modifier = Modifier.weight(1f).padding(horizontal = 8.dp)
                                     )
-                                    Text("${(prog * 100).toInt()}%", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = AppThemeColors.BluePrimary)
+                                    Text("${(prog * 100).toInt()}%", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = AppThemeColors.BluePrimary, maxLines = 1)
                                 }
                             }
                         }
@@ -1801,14 +1868,16 @@ fun MonthlyPlanScreen(
                                     Text(
                                         "TUẦN ${w + 1} (${weekRanges[w]})",
                                         fontWeight = FontWeight.ExtraBold,
-                                        fontSize = 13.sp,
-                                        color = AppThemeColors.TextPrimary
+                                        fontSize = 12.sp,
+                                        color = AppThemeColors.TextPrimary,
+                                        maxLines = 1
                                     )
                                     Text(
                                         "${(wProg * 100).toInt()}%",
                                         fontWeight = FontWeight.Bold,
-                                        fontSize = 13.sp,
-                                        color = AppThemeColors.BluePrimary
+                                        fontSize = 12.sp,
+                                        color = AppThemeColors.BluePrimary,
+                                        maxLines = 1
                                     )
                                 }
                                 Text("Trọng tâm công việc tuần ${w + 1}:", fontSize = 12.sp, color = AppThemeColors.TextSecondary)
@@ -1816,7 +1885,7 @@ fun MonthlyPlanScreen(
                                     value = wFocus,
                                     onValueChange = { wFocus = it; wItem.focus = it; onSave() },
                                     shape = RoundedCornerShape(8.dp),
-                                    placeholder = { Text("Các đầu việc chính cần hoàn thành...", fontSize = 12.sp, color = AppThemeColors.TextMuted) },
+                                    placeholder = { Text("Các đầu việc chính cần hoàn thành...", fontSize = 12.sp, color = AppThemeColors.TextMuted, maxLines = 1) },
                                     modifier = Modifier.fillMaxWidth(),
                                     singleLine = true
                                 )
@@ -1825,12 +1894,12 @@ fun MonthlyPlanScreen(
                                     value = wNote,
                                     onValueChange = { wNote = it; wItem.note = it; onSave() },
                                     shape = RoundedCornerShape(8.dp),
-                                    placeholder = { Text("Kết quả đạt được / vướng mắc...", fontSize = 12.sp, color = AppThemeColors.TextMuted) },
+                                    placeholder = { Text("Kết quả đạt được / vướng mắc...", fontSize = 12.sp, color = AppThemeColors.TextMuted, maxLines = 1) },
                                     modifier = Modifier.fillMaxWidth(),
                                     singleLine = true
                                 )
                                 Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Text("Hoàn thành:", fontSize = 12.sp, color = AppThemeColors.TextSecondary)
+                                    Text("Hoàn thành:", fontSize = 12.sp, color = AppThemeColors.TextSecondary, maxLines = 1)
                                     Slider(
                                         value = wProg,
                                         onValueChange = { wProg = it; wItem.progress = it; onSave() },
@@ -1934,7 +2003,7 @@ fun MonthlyPlanScreen(
                             modifier = Modifier.fillMaxWidth().height(85.dp)
                         )
 
-                        Button(
+                    Button(
                             onClick = {
                                 val nextM = yearMonth.plusMonths(1)
                                 val nextPlan = repo.loadMonth(nextM.toString())
@@ -1949,7 +2018,7 @@ fun MonthlyPlanScreen(
                             colors = ButtonDefaults.buttonColors(containerColor = AppThemeColors.PurplePrimary),
                             contentPadding = PaddingValues(horizontal = 14.dp, vertical = 8.dp)
                         ) {
-                            Text("Đẩy sang tháng sau", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                            Text("Đẩy sang tháng sau", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp, maxLines = 1)
                         }
                     }
                 }
