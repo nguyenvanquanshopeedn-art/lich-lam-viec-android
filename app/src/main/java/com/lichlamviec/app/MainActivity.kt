@@ -731,18 +731,26 @@ fun DailyScheduleScreen(
             title = { Text("Thêm khung giờ / nhiệm vụ", fontWeight = FontWeight.Bold, fontSize = 16.sp) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("Giờ bắt đầu (00-23) & phút:", fontSize = 12.sp, color = AppThemeColors.TextSecondary)
+                                        Text("Giờ bắt đầu (00-23) & phút:", fontSize = 12.sp, color = AppThemeColors.TextSecondary)
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         OutlinedTextField(
-                            value = newStartHour.toString(),
-                            onValueChange = { it.toIntOrNull()?.coerceIn(0, 23)?.let { v -> newStartHour = v } },
+                            value = startHourText,
+                            onValueChange = {
+                                if (it.length <= 2 && it.all { ch -> ch.isDigit() }) {
+                                    startHourText = it
+                                }
+                            },
                             label = { Text("Giờ đầu") },
                             modifier = Modifier.weight(1f),
                             singleLine = true
                         )
                         OutlinedTextField(
-                            value = newStartMin.toString(),
-                            onValueChange = { it.toIntOrNull()?.coerceIn(0, 59)?.let { v -> newStartMin = v } },
+                            value = startMinText,
+                            onValueChange = {
+                                if (it.length <= 2 && it.all { ch -> ch.isDigit() }) {
+                                    startMinText = it
+                                }
+                            },
                             label = { Text("Phút đầu") },
                             modifier = Modifier.weight(1f),
                             singleLine = true
@@ -751,15 +759,23 @@ fun DailyScheduleScreen(
                     Text("Giờ kết thúc (00-23) & phút:", fontSize = 12.sp, color = AppThemeColors.TextSecondary)
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         OutlinedTextField(
-                            value = newEndHour.toString(),
-                            onValueChange = { it.toIntOrNull()?.coerceIn(0, 23)?.let { v -> newEndHour = v } },
+                            value = endHourText,
+                            onValueChange = {
+                                if (it.length <= 2 && it.all { ch -> ch.isDigit() }) {
+                                    endHourText = it
+                                }
+                            },
                             label = { Text("Giờ cuối") },
                             modifier = Modifier.weight(1f),
                             singleLine = true
                         )
                         OutlinedTextField(
-                            value = newEndMin.toString(),
-                            onValueChange = { it.toIntOrNull()?.coerceIn(0, 59)?.let { v -> newEndMin = v } },
+                            value = endMinText,
+                            onValueChange = {
+                                if (it.length <= 2 && it.all { ch -> ch.isDigit() }) {
+                                    endMinText = it
+                                }
+                            },
                             label = { Text("Phút cuối") },
                             modifier = Modifier.weight(1f),
                             singleLine = true
