@@ -470,4 +470,269 @@ fun DailyScheduleScreen(
                         var tText by remember(date, idx) { mutableStateOf(item) }
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.padding(vertic
+                            modifier = Modifier.padding(vertical = 2.dp)
+                        ) {
+                            Text("${idx + 1}.", fontWeight = FontWeight.Bold, modifier = Modifier.width(22.dp))
+                            OutlinedTextField(
+                                value = tText,
+                                onValueChange = {
+                                    tText = it
+                                    plan.tomorrowTasks[idx] = it
+                                    onSave()
+                                },
+                                modifier = Modifier.weight(1f),
+                                singleLine = true
+                            )
+                        }
+                    }
+
+                    Spacer(Modifier.height(8.dp))
+                    Button(
+                        onClick = onPushTomorrow,
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0284C7))
+                    ) {
+                        Icon(Icons.Default.FastForward, contentDescription = null)
+                        Spacer(Modifier.width(6.dp))
+                        Text("Chuyển 3 việc này sang Mục tiêu ngày mai")
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun MonthlyPlanScreen(
+    yearMonth: YearMonth,
+    plan: MonthPlan,
+    repo: StorageRepo,
+    onMonthChange: (YearMonth) -> Unit,
+    onSelectDay: (LocalDate) -> Unit,
+    onSave: () -> Unit
+) {
+    val daysInMonth = yearMonth.lengthOfMonth()
+    var totalGoalsDone = 0
+    var totalSlotsDone = 0
+    var activeDays = 0
+
+    for (d in 1..daysInMonth) {
+        val dp = repo.loadDay(yearMonth.atDay(d).toString())
+        val gDone = dp.goals.count { it.done && it.text.isNotBlank() }
+        val sDone = dp.slots.count { it.done && it.task.isNotBlank() }
+        if (gDone > 0 || sDone > 0 || dp.goals.any { it.text.isNotBlank() } || dp.slots.any { it.task.isNotBlank() }) {
+            activeDays++
+        }
+        totalGoalsDone += gDone
+        totalSlotsDone += sDone
+    }
+
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(12.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        item {
+            Card(colors = CardDefaults.cardColors(containerColor = Color.White)) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    IconButton(onClick = { onMonthChange(yearMonth.minusMonths(1)) }) {
+                        Icon(Icons.Default.ChevronLeft, contentDescription = null)
+                    }
+                    Text(
+                        "THÁNG ${yearMonth.monthValue} / ${yearMonth.year}",
+                        fontWeight = FontWeight.ExtraBold,
+                        fontSize = 17.sp,
+                        color = Color(0xFF1E293B)
+                    )
+                    IconButton(onClick = { onMonthChange(yearMonth.plusMonths(1)) }) {
+                        Icon(Icons.Default.ChevronRight, contentDescription = null)
+                    }
+                }
+            }
+        }
+
+        item {
+            Card(colors = CardDefaults.cardColors(containerColor = Color(0xFF1E293B))) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(14.dp),
+                    horizontalArrangement = Arrangement.SpaceAround
+                ) {
+                    StatBox("Ngày hoạt động", "$activeDays/$daysInMonth")
+                    StatBox("Mục tiêu xong", "$totalGoalsDone")
+                    StatBox("Khung giờ xong", "$totalSlotsDone")
+                }
+            }
+        }
+
+        item {
+            Card(colors = CardDefaults.cardColors(containerColor = Color.White)) {
+                Column(modifier = Modifier.padding(12.dp)) {
+                    Text(
+                        "BẢN ĐỒ NGÀY TRONG THÁNG (Chạm để mở lịch ngày)",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 13.sp
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    val rows = (1..daysInMonth).chunked(7)
+                    rows.forEach { weekDays ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            weekDays.forEach { dayNum ->
+                                val d = yearMonth.atDay(dayNum)
+                                val dp = repo.loadDay(d.toString())
+                                val hasWork = dp.slots.any { it.done } || dp.goals.any { it.done }
+                                Box(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .padding(vertical = 2.dp)
+                                        .background(
+                                            if (hasWork) Color(0xFFDCFCE7) else Color(0xFFF1F5F9),
+                                            RoundedCornerShape(6.dp)
+                                        )
+                                        .clickable { onSelectDay(d) }
+                                        .padding(vertical = 8.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text("$dayNum", fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                                }
+                            }
+                            repeat(7 - weekDays.size) {
+                                Spacer(Modifier.weight(1f))
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        item {
+            Card(colors = CardDefaults.cardColors(containerColor = Color.White)) {
+                Column(modifier = Modifier.padding(12.dp)) {
+                    Text("1. MỤC TIÊU TRỌNG TÂM THÁNG", fontWeight = FontWeight.Bold)
+                    Spacer(Modifier.height(6.dp))
+                    plan.monthGoals.forEachIndexed { idx, g ->
+                        var txt by remember(yearMonth, idx) { mutableStateOf(g.text) }
+                        var dn by remember(yearMonth, idx) { mutableStateOf(g.done) }
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            OutlinedTextField(
+                                value = txt,
+                                onValueChange = { txt = it; g.text = it; onSave() },
+                                placeholder = { Text("Mục tiêu tháng #${idx + 1}") },
+                                modifier = Modifier.weight(1f),
+                                singleLine = true
+                            )
+                            Checkbox(
+                                checked = dn,
+                                onCheckedChange = { dn = it; g.done = it; onSave() }
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        item {
+            Card(colors = CardDefaults.cardColors(containerColor = Color.White)) {
+                Column(modifier = Modifier.padding(12.dp)) {
+                    Text("2. LỘ TRÌNH & TIẾN ĐỘ 4 TUẦN", fontWeight = FontWeight.Bold)
+                    Spacer(Modifier.height(6.dp))
+                    for (w in 0..3) {
+                        var wText by remember(yearMonth, w) { mutableStateOf(plan.weekFocus[w]) }
+                        var wProg by remember(yearMonth, w) { mutableFloatStateOf(plan.weekProgress[w]) }
+                        Text(
+                            "Tuần ${w + 1} (${(wProg * 100).toInt()}%)",
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 13.sp
+                        )
+                        OutlinedTextField(
+                            value = wText,
+                            onValueChange = { wText = it; plan.weekFocus[w] = it; onSave() },
+                            placeholder = { Text("Trọng tâm tuần ${w + 1}...") },
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true
+                        )
+                        Slider(
+                            value = wProg,
+                            onValueChange = { wProg = it; plan.weekProgress[w] = it; onSave() }
+                        )
+                    }
+                }
+            }
+        }
+
+        item {
+            Card(colors = CardDefaults.cardColors(containerColor = Color.White)) {
+                Column(
+                    modifier = Modifier.padding(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text("3. TỔNG KẾT CUỐI THÁNG", fontWeight = FontWeight.Bold)
+
+                    var ach by remember(yearMonth) { mutableStateOf(plan.achievements) }
+                    OutlinedTextField(
+                        value = ach,
+                        onValueChange = { ach = it; plan.achievements = it; onSave() },
+                        label = { Text("Thành tựu nổi bật đạt được") },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(85.dp)
+                    )
+
+                    var les by remember(yearMonth) { mutableStateOf(plan.lessons) }
+                    OutlinedTextField(
+                        value = les,
+                        onValueChange = { les = it; plan.lessons = it; onSave() },
+                        label = { Text("Khó khăn & Bài học kinh nghiệm") },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(85.dp)
+                    )
+
+                    var hab by remember(yearMonth) { mutableStateOf(plan.goodHabits) }
+                    OutlinedTextField(
+                        value = hab,
+                        onValueChange = { hab = it; plan.goodHabits = it; onSave() },
+                        label = { Text("Thói quen duy trì tốt") },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(85.dp)
+                    )
+
+                    var nxt by remember(yearMonth) { mutableStateOf(plan.nextMonthFocus) }
+                    OutlinedTextField(
+                        value = nxt,
+                        onValueChange = { nxt = it; plan.nextMonthFocus = it; onSave() },
+                        label = { Text("Định hướng & Cải thiện tháng tới") },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(85.dp)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun StatBox(label: String, value: String) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(
+            value,
+            color = Color(0xFF38BDF8),
+            fontWeight = FontWeight.ExtraBold,
+            fontSize = 20.sp
+        )
+        Text(label, color = Color(0xFFCBD5E1), fontSize = 12.sp)
+    }
+}
