@@ -8,6 +8,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.media.AudioAttributes
+import android.media.AudioManager
 import android.media.MediaPlayer
 import android.media.RingtoneManager
 import android.net.Uri
@@ -34,11 +35,15 @@ object RingtonePrefs {
     private const val KEY_VIBRATE = "ringtone_vibrate"
     private const val KEY_LOOP = "ringtone_loop"
 
+    fun getFallbackUri(): Uri? {
+        return RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
+            ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+            ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
+    }
+
     fun load(context: Context): RingtoneSettings {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val defaultUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)?.toString()
-            ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)?.toString()
-            ?: ""
+        val defaultUri = getFallbackUri()?.toString() ?: ""
         return RingtoneSettings(
             ringtoneUri = prefs.getString(KEY_URI, defaultUri) ?: defaultUri,
             ringtoneTitle = prefs.getString(KEY_TITLE, "Nhạc chuông mặc định") ?: "Nhạc chuông mặc định",
@@ -67,58 +72,110 @@ object AlarmSoundPlayer {
         private set
 
     fun playPreview(context: Context, uriString: String, volumePercent: Int) {
+        startPlayback(
+            context = context,
+            uriString = uriString,
+            volumePercent = volumePercent,
+            loop = false,
+            withVibration = false
+        )
+    }
+
+    fun playAlarm(context: Context, settings: RingtoneSettings) {
+        startPlayback(
+            context = context,
+            uriString = settings.ringtoneUri,
+            volumePercent = settings.volumePercent,
+            loop = settings.loopAlarm,
+            withVibration = settings.vibrateEnabled
+        )
+    }
+
+    private fun startPlayback(
+        context: Context,
+        uriString: String,
+        volumePercent: Int,
+        loop: Boolean,
+        withVibration: Boolean
+    ) {
         stop()
-        val uri = parseUri(context, uriString) ?: return
+        val appContext = context.applicationContext
+        val primaryUri = parseUri(uriString) ?: RingtonePrefs.getFallbackUri() ?: return
+        val vol = (volumePercent.coerceIn(0, 100)) / 100f
+
         try {
-            val vol = (volumePercent.coerceIn(0, 100)) / 100f
-            mediaPlayer = MediaPlayer().apply {
+            val audioManager = appContext.getSystemService(Context.AUDIO_SERVICE) as? AudioManager
+            if (audioManager != null && vol > 0f) {
+                val maxAlarm = audioManager.getStreamMaxVolume(AudioManager.STREAM_ALARM)
+                val currentAlarm = audioManager.getStreamVolume(AudioManager.STREAM_ALARM)
+                if (currentAlarm == 0 && maxAlarm > 0) {
+                    val targetVol = (maxAlarm * vol).toInt().coerceAtLeast(1)
+                    audioManager.setStreamVolume(AudioManager.STREAM_ALARM, targetVol, 0)
+                }
+            }
+        } catch (_: Exception) {
+        }
+
+        tryPlayUri(
+            appContext = appContext,
+            uri = primaryUri,
+            volume = vol,
+            loop = loop,
+            fallbackUri = RingtonePrefs.getFallbackUri()
+        )
+
+        if (withVibration) {
+            startVibrate(appContext, repeat = loop)
+        }
+    }
+
+    private fun tryPlayUri(
+        appContext: Context,
+        uri: Uri,
+        volume: Float,
+        loop: Boolean,
+        fallbackUri: Uri?
+    ) {
+        try {
+            val mp = MediaPlayer().apply {
                 setAudioAttributes(
                     AudioAttributes.Builder()
                         .setUsage(AudioAttributes.USAGE_ALARM)
                         .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
                         .build()
                 )
-                setDataSource(context, uri)
-                setVolume(vol, vol)
-                isLooping = false
-                setOnCompletionListener { stop() }
-                prepare()
-                start()
-            }
-            isRinging = true
-        } catch (_: Exception) {
-            stop()
-        }
-    }
-
-    fun playAlarm(context: Context, settings: RingtoneSettings) {
-        stop()
-        val uri = parseUri(context, settings.ringtoneUri) ?: return
-        try {
-            val vol = (settings.volumePercent.coerceIn(0, 100)) / 100f
-            mediaPlayer = MediaPlayer().apply {
-                setAudioAttributes(
-                    AudioAttributes.Builder()
-                        .setUsage(AudioAttributes.USAGE_ALARM)
-                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                        .build()
-                )
-                setDataSource(context, uri)
-                setVolume(vol, vol)
-                isLooping = settings.loopAlarm
-                setOnCompletionListener {
-                    if (!settings.loopAlarm) stop()
+                setDataSource(appContext, uri)
+                setVolume(volume, volume)
+                isLooping = loop
+                setOnPreparedListener { player ->
+                    try {
+                        player.start()
+                        isRinging = true
+                    } catch (_: Exception) {
+                        stop()
+                    }
                 }
-                prepare()
-                start()
+                setOnCompletionListener {
+                    if (!loop) stop()
+                }
+                setOnErrorListener { _, _, _ ->
+                    if (fallbackUri != null && fallbackUri != uri) {
+                        tryPlayUri(appContext, fallbackUri, volume, loop, null)
+                        true
+                    } else {
+                        stop()
+                        true
+                    }
+                }
+                prepareAsync()
             }
-            isRinging = true
+            mediaPlayer = mp
         } catch (_: Exception) {
-            stop()
-        }
-
-        if (settings.vibrateEnabled) {
-            startVibrate(context, settings.loopAlarm)
+            if (fallbackUri != null && fallbackUri != uri) {
+                tryPlayUri(appContext, fallbackUri, volume, loop, null)
+            } else {
+                stop()
+            }
         }
     }
 
@@ -126,6 +183,9 @@ object AlarmSoundPlayer {
         isRinging = false
         try {
             mediaPlayer?.stop()
+        } catch (_: Exception) {
+        }
+        try {
             mediaPlayer?.release()
         } catch (_: Exception) {
         } finally {
@@ -140,13 +200,11 @@ object AlarmSoundPlayer {
         }
     }
 
-    private fun parseUri(context: Context, uriString: String): Uri? {
+    private fun parseUri(uriString: String): Uri? {
         return try {
-            if (uriString.isNotBlank()) Uri.parse(uriString)
-            else RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
-                ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+            if (uriString.isNotBlank()) Uri.parse(uriString) else null
         } catch (_: Exception) {
-            RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+            null
         }
     }
 
