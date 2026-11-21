@@ -1210,6 +1210,7 @@ fun MonthlyPlanScreen(
     onSelectDay: (LocalDate) -> Unit,
     onSave: () -> Unit
 ) {
+    val context = LocalContext.current
     var mutationCount by remember { mutableIntStateOf(0) }
     val daysInMonth = yearMonth.lengthOfMonth()
 
